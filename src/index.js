@@ -39,11 +39,7 @@ const books = [
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
-const resolvers = {
-  Query: {
-    books: () => books,
-  },
-};
+
 
 const {
   ApolloServerPluginLandingPageLocalDefault,
@@ -52,6 +48,15 @@ const {
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
 
+const resolvers = {
+  Query: {
+    books: (root, data, context) => {
+      console.log(context);
+      return books;
+    },
+  },
+};
+
 const start = async () => {
   const client = new MongoClient(DB_URI, {
     useNewUrlParser: true,
@@ -59,13 +64,15 @@ const start = async () => {
   });
   await client.connect();
   constdb = client.db(DB_NAME);
+  
+  const context = {
+    //db,
+  }
 
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    csrfPrevention: true,
-    cache: "bounded",
-    plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
+    context
   });
   server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
