@@ -1,25 +1,54 @@
-const { ApolloServer } = require("apollo-server");
-const gql = require('graphql-tag');
-//const { Query } = require("mongoose");
+const { ApolloServer, gql } = require("apollo-server");
+const { MongoClient } = require("mongodb");
+const dotenv = require("dotenv");
+dotenv.config();
+const { DB_URI, DB_NAME } = process.env;
 
+//process.env.DB_URI
 
-const typeDefs = gql `
-  type Query {
-    SayHi: String!
+const books = [
+  {
+    title: "The Awejojujnbhjk",
+    author: "Kate Chopinhuhhuynjh",
+  },
+  {
+    title: "City ofjhghvhjjjj jkdfvncjvn  Glass",
+    author: "Paul Auster",
+  },
+];
+
+const typeDefs = gql`
+  type Book {
+    title: String
+    author: String
   }
-`
+
+  type Query {
+    books: [Book]
+  }
+`;
 
 const resolvers = {
   Query: {
-    sayHi: () => 'Hello Everyone'
-  }
-}
-
-const server = new ApolloServer((
-  typeDefs,
-  resolvers
-));
-
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`)}
+    books: () => books,
+  },
 };
+
+const start = async () => {
+  const client = new MongoClient(DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  await client.connect();
+  const db = client.db(DB_NAME);
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+  server.listen().then(({ url }) => {
+    console.log(`🚀  Server ready at ${url}`);
+  });
+};
+
+start();
