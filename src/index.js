@@ -2,40 +2,33 @@ const { ApolloServer, gql } = require("apollo-server");
 const { MongoClient } = require("mongodb");
 const dotenv = require("dotenv");
 dotenv.config();
+
 const { DB_URI, DB_NAME } = process.env;
 
-//process.env.DB_URI
-
-const books = [
-  {
-    title: "The Awejojujnbhjk",
-    author: "Kate Chopinhuhhuynjh",
-  },
-  {
-    title: "City ofjhghvhjjjj jkdfvncjvn  Glass",
-    author: "Paul Auster",
-  },
-];
-
 const typeDefs = gql`
-  type Book {
-    title: String
-    author: String
+  type Query {
+    getPosts: [post]
   }
 
-  type Query {
-    books: [Book]
+  type Post {
+    id: ID!
+    body: String!
+    createdAt: String!
+    username: String!
+  }
+  type User {
+    id: ID!
+    email: String!
+    token: String!
+    username: String!
+
+    user: [User!]!
+
+    post: Post!
   }
 `;
 
-const resolvers = {
-  Query: {
-    books: (root,data,context) => {
-      console.log(context.db);
-      return books;
-    },
-  },
-};
+const resolvers = {};
 
 const start = async () => {
   const client = new MongoClient(DB_URI, {
@@ -45,14 +38,13 @@ const start = async () => {
   await client.connect();
   const db = client.db(DB_NAME);
 
-  const context ={
+  const context = {
     db,
-  }
+  };
 
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context
   });
   server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
