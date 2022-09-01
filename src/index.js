@@ -7,7 +7,7 @@ const { DB_URI, DB_NAME } = process.env;
 
 const typeDefs = gql`
   type Query {
-    getPosts: [post]
+    getPosts: [Post!]!
   }
 
   type Post {
@@ -28,7 +28,11 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers = {};
+const resolvers = {
+  Query: {
+    getPosts: () => []
+  }
+};
 
 const start = async () => {
   const client = new MongoClient(DB_URI, {
