@@ -30,7 +30,10 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    books: () => books,
+    books: (root,data,context) => {
+      console.log(context.db);
+      return books;
+    },
   },
 };
 
@@ -42,9 +45,14 @@ const start = async () => {
   await client.connect();
   const db = client.db(DB_NAME);
 
+  const context ={
+    db,
+  }
+
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    context
   });
   server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
